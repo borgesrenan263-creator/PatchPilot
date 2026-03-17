@@ -1,0 +1,14 @@
+node_modules
+dist
+.env
+*.log
+*.tar.gz
+*.mp3
+.cache
+.npm
+.local
+.ssh
+.termux
+.bashrc
+.zshrc
+psql_history

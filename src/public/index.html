@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PatchPilot Dashboard</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="container">
+    <header class="topbar">
+      <div>
+        <h1>PatchPilot</h1>
+        <p class="subtitle">Dashboard de monitoramento, incidentes e auto-heal</p>
+      </div>
+      <div class="badge" id="last-update">Atualizando...</div>
+    </header>
+
+    <section id="alert-banner" class="alert-banner hidden">
+      ⚠ ALERTA ATIVO — Existem incidentes abertos no sistema.
+    </section>
+
+    <section class="cards">
+      <div class="card">
+        <h3>Total de projetos</h3>
+        <p id="total-projects">0</p>
+      </div>
+      <div class="card">
+        <h3>APIs saudáveis</h3>
+        <p id="healthy-projects">0</p>
+      </div>
+      <div class="card alert-card">
+        <h3>APIs em alerta</h3>
+        <p id="alert-projects">0</p>
+      </div>
+      <div class="card">
+        <h3>Auto-heals registrados</h3>
+        <p id="autoheal-attempts">0</p>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="panel">
+        <h2>Adicionar projeto</h2>
+        <form id="project-form" class="project-form">
+          <input id="name" type="text" placeholder="Nome do projeto" required />
+          <input id="repoUrl" type="url" placeholder="Repository URL" required />
+          <input id="healthcheckUrl" type="url" placeholder="Healthcheck URL" required />
+          <input id="autoHealCommand" type="text" placeholder="Auto-heal command (opcional)" />
+          <button type="submit">Adicionar projeto</button>
+        </form>
+        <p id="form-message" class="form-message"></p>
+      </div>
+
+      <div class="panel chart-panel">
+        <h2>Saudáveis vs Alertas</h2>
+        <div class="chart-wrap">
+          <svg id="statusChartSvg" viewBox="0 0 220 220" class="chart-svg">
+            <circle cx="110" cy="110" r="70" class="chart-bg"></circle>
+            <circle
+              id="healthyArc"
+              cx="110"
+              cy="110"
+              r="70"
+              class="chart-healthy"
+              transform="rotate(-90 110 110)"
+            ></circle>
+            <circle
+              id="alertArc"
+              cx="110"
+              cy="110"
+              r="70"
+              class="chart-alert"
+              transform="rotate(-90 110 110)"
+            ></circle>
+          </svg>
+
+          <div class="chart-center">
+            <strong id="chart-total">0</strong>
+            <span>Projetos</span>
+          </div>
+        </div>
+
+        <div class="chart-legend">
+          <div class="legend-item">
+            <span class="legend-dot dot-healthy"></span>
+            <span>Healthy: <strong id="legend-healthy">0</strong></span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot dot-alert"></span>
+            <span>Alert: <strong id="legend-alert">0</strong></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Projetos monitorados</h2>
+      <div class="project-list" id="project-cards">
+        <div class="empty-state">Carregando...</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Tabela operacional</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Projeto</th>
+              <th>Integridade</th>
+              <th>Latência</th>
+              <th>Status</th>
+              <th>Falha</th>
+              <th>Auto-heal</th>
+            </tr>
+          </thead>
+          <tbody id="projects-table">
+            <tr>
+              <td colspan="6">Carregando...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
