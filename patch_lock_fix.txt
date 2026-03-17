@@ -1,0 +1,7 @@
+    if (failedLocked[p.id]) {
+      if (!lockLogged[p.id]) {
+        console.log(`🛑 BLOQUEADO: ${p.name} (aguardando intervenção)`);
+        lockLogged[p.id] = true;
+      }
+      continue;
+    }

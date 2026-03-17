@@ -12,11 +12,7 @@ export const createProject = async (req: Request, res: Response) => {
     });
   }
 
-  const { name, repoUrl, healthcheckUrl } = parsed.data;
-  const autoHealCommand =
-    typeof req.body.autoHealCommand === "string"
-      ? req.body.autoHealCommand
-      : null;
+  const { name, repoUrl, healthcheckUrl, autoHealCommand } = parsed.data;
 
   const result = await db.query(
     `INSERT INTO "Project" (name, "repoUrl", "healthcheckUrl", "autoHealCommand")

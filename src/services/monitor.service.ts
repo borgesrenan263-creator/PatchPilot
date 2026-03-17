@@ -1,5 +1,5 @@
-import { createMetric } from "./metrics.service";
 import { probeHealth } from "./health.service";
+import { createMetric } from "./metrics.service";
 import { tryAutoHeal } from "./autoheal.service";
 import {
   createIncident,
@@ -20,47 +20,53 @@ export const runMonitorCycle = async () => {
   for (const project of projects) {
     console.log("Checking", project.name);
 
-    const health = await probeHealth(project.healthcheckUrl);
+    const result = await probeHealth(project.healthcheckUrl);
 
-    await createMetric(
-      project.id,
-      health.latency,
-      health.statusCode ?? 0
-    );
+    await createMetric(project.id, result.latency, result.statusCode);
 
-    if (health.ok) {
-      console.log("✅", project.name, "healthy", health.latency + "ms");
+    if (result.ok) {
+      console.log("✅", project.name, "healthy", result.latency + "ms");
       await resolveIncident(project.id);
       continue;
     }
 
-    console.log("❌", health.message);
+    if (result.failureType === "connection_refused") {
+      console.log("❌ Connection refused");
+    } else if (result.failureType === "timeout") {
+      console.log("❌ Timeout");
+    } else if (result.failureType === "http_404") {
+      console.log("❌ Route not found");
+    } else if (result.failureType === "http_500") {
+      console.log("❌ Internal server error");
+    } else if (result.failureType === "http_502_503_504") {
+      console.log("❌ Upstream unavailable");
+    } else {
+      console.log("❌ Service unreachable");
+    }
 
     await createIncident({
       projectId: project.id,
-      message: health.message,
-      statusCode: health.statusCode ?? undefined,
+      message: result.failureType,
+      statusCode: result.statusCode || 0
     });
 
     const healed = await tryAutoHeal({
       project,
-      failureType: health.failureType,
-      statusCode: health.statusCode,
+      failureType: result.failureType,
+      statusCode: result.statusCode
     });
 
-    if (!healed) {
-      continue;
-    }
+    if (healed) {
+      console.log("🔁 Rechecking after auto-heal...");
 
-    console.log("🔁 Rechecking after auto-heal...");
+      const retry = await probeHealth(project.healthcheckUrl);
 
-    const retry = await probeHealth(project.healthcheckUrl);
-
-    if (retry.ok) {
-      console.log("✅ Service recovered after auto-heal");
-      await resolveIncident(project.id);
-    } else {
-      console.log("❌ Retry failed after auto-heal:", retry.message);
+      if (retry.ok) {
+        console.log("✅ Service recovered after auto-heal");
+        await resolveIncident(project.id);
+      } else {
+        console.log("❌ Retry failed after auto-heal:", retry.failureType);
+      }
     }
   }
 };
