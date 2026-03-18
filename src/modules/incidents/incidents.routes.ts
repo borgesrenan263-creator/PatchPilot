@@ -1,7 +1,17 @@
 import { Router } from "express";
-import { listIncidents, listOpenIncidents } from "./incidents.controller";
+import {
+  createIncident,
+  getIncidents,
+  getOpenIncidents,
+  resolveIncident,
+} from "./incidents.controller";
 
-export const incidentsRouter = Router();
+const router = Router();
 
-incidentsRouter.get("/", listIncidents);
-incidentsRouter.get("/open", listOpenIncidents);
+router.get("/", getIncidents);
+router.get("/open", getOpenIncidents);
+router.post("/", createIncident);
+router.patch("/:id/resolve", resolveIncident);
+
+export default router;
+export { router as incidentsRouter };

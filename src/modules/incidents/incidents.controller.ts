@@ -1,79 +1,57 @@
 import { Request, Response } from "express";
 import { db } from "../../lib/db";
 
-type CreateIncidentInput = {
-  projectId: number;
-  message: string;
-  statusCode?: number;
-};
+export async function getIncidents(_req: Request, res: Response) {
+  const incidents = db.getIncidents();
+  return res.status(200).json(incidents);
+}
 
-export const createIncident = async (data: CreateIncidentInput) => {
-  const open = await db.query(
-    `SELECT id FROM "Incident"
-     WHERE "projectId" = $1 AND status = 'open'
-     LIMIT 1`,
-    [data.projectId]
-  );
+export async function getOpenIncidents(_req: Request, res: Response) {
+  const incidents = db.getIncidents();
+  const open = incidents.filter((incident: any) => incident.status !== "resolved");
+  return res.status(200).json(open);
+}
 
-  if (open.rows.length > 0) {
-    return null;
+export async function createIncident(req: Request, res: Response) {
+  const { projectId, message, status } = req.body;
+
+  if (!projectId || !message) {
+    return res.status(400).json({ error: "Dados inválidos" });
   }
 
-  const result = await db.query(
-    `INSERT INTO "Incident" ("projectId", status, message, "statusCode")
-     VALUES ($1, 'open', $2, $3)
-     RETURNING *`,
-    [data.projectId, data.message, data.statusCode ?? null]
-  );
+  const incidents = db.getIncidents();
 
-  return result.rows[0];
-};
+  const incident = {
+    id: Date.now().toString(),
+    projectId,
+    message,
+    status: status || "open",
+    createdAt: new Date().toISOString(),
+  };
 
-export const resolveIncident = async (projectId: number) => {
-  await db.query(
-    `UPDATE "Incident"
-     SET status = 'resolved',
-         "resolvedAt" = NOW()
-     WHERE "projectId" = $1
-       AND status = 'open'`,
-    [projectId]
-  );
-};
+  incidents.push(incident);
+  db.saveIncidents(incidents);
 
-export const listIncidents = async (_req: Request, res: Response) => {
-  const result = await db.query(
-    `SELECT
-       i.id,
-       i."projectId",
-       p.name AS "projectName",
-       i.status,
-       i.message,
-       i."statusCode",
-       i."createdAt",
-       i."resolvedAt"
-     FROM "Incident" i
-     JOIN "Project" p ON p.id = i."projectId"
-     ORDER BY i.id DESC`
-  );
+  return res.status(201).json(incident);
+}
 
-  return res.json(result.rows);
-};
+export async function resolveIncident(req: Request, res: Response) {
+  const { id } = req.params;
+  const incidents = db.getIncidents();
 
-export const listOpenIncidents = async (_req: Request, res: Response) => {
-  const result = await db.query(
-    `SELECT
-       i.id,
-       i."projectId",
-       p.name AS "projectName",
-       i.status,
-       i.message,
-       i."statusCode",
-       i."createdAt"
-     FROM "Incident" i
-     JOIN "Project" p ON p.id = i."projectId"
-     WHERE i.status = 'open'
-     ORDER BY i.id DESC`
-  );
+  const index = incidents.findIndex((incident: any) => incident.id === id);
 
-  return res.json(result.rows);
-};
+  if (index === -1) {
+    return res.status(404).json({ error: "Incidente não encontrado" });
+  }
+
+  incidents[index] = {
+    ...incidents[index],
+    status: "resolved",
+    resolvedAt: new Date().toISOString(),
+  };
+
+  db.saveIncidents(incidents);
+
+  return res.status(200).json(incidents[index]);
+}

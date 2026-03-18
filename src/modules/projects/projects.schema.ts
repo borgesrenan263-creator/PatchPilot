@@ -1,17 +1,21 @@
 export interface Project {
   id: string;
   name: string;
-  url: string;
-  status: "ok" | "error";
-  lastCheck: number;
+  repoUrl?: string;
+  healthUrl: string;
+  command?: string;
+  status?: "healthy" | "alert";
+  createdAt?: string;
 }
 
-export function createProject(data: any): Project {
+export function createProjectSchema(data: any): Project {
   return {
     id: data.id || Date.now().toString(),
     name: data.name || "Unnamed",
-    url: data.url || "",
-    status: "ok",
-    lastCheck: Date.now(),
+    repoUrl: data.repoUrl || "",
+    healthUrl: data.healthUrl || "",
+    command: data.command || "",
+    status: data.status || "alert",
+    createdAt: data.createdAt || new Date().toISOString(),
   };
 }

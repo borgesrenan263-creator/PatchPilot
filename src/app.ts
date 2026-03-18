@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import path from "path";
 import cors from "cors";
 import helmet from "helmet";
@@ -38,7 +38,7 @@ app.use(morgan("dev"));
 
 app.use(express.static(path.join(process.cwd(), "src/public")));
 
-app.get("/", (_req, res) => {
+app.get("/", (_req: Request, res: Response) => {
   res.sendFile(path.join(process.cwd(), "src/public", "index.html"));
 });
 

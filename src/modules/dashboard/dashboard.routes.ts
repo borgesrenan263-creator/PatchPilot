@@ -1,6 +1,9 @@
 import { Router } from "express";
 import { getDashboardOverview } from "./dashboard.controller";
 
-export const dashboardRouter = Router();
+const router = Router();
 
-dashboardRouter.get("/overview", getDashboardOverview);
+router.get("/overview", getDashboardOverview);
+
+export default router;
+export { router as dashboardRouter };

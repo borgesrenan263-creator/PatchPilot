@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "id": "1773795633920",
+    "name": "api-dashboard",
+    "repoUrl": "https://github.com/test/api-dashboard",
+    "healthUrl": "http://127.0.0.1:3000/health",
+    "command": "echo heal",
+    "status": "alert",
+    "createdAt": "2026-03-18T01:00:33.920Z"
+  }
+]

@@ -1,56 +1,50 @@
-jest.mock("../src/lib/db", () => ({
-  db: {
-    query: jest.fn(),
-  },
-}));
-
 import request from "supertest";
-import { app } from "../src/app";
-import { db } from "../src/lib/db";
-
-const mockedDb = db as unknown as { query: jest.Mock };
+import app from "../src/app";
 
 describe("Projects routes", () => {
-  beforeEach(() => {
-    mockedDb.query.mockReset();
+  it("deve listar projetos", async () => {
+    const res = await request(app).get("/projects");
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
   });
 
-  it(
-    "should list projects",
-    async () => {
-      mockedDb.query.mockResolvedValueOnce({
-        rows: [
-          {
-            id: 1,
-            name: "api-teste",
-            repoUrl: "https://github.com/test/api",
-            healthcheckUrl: "http://127.0.0.1:3000/health",
-            createdAt: new Date().toISOString(),
-          },
-        ],
-      });
+  it("deve criar um projeto válido", async () => {
+    const payload = {
+      name: "api-test",
+      repoUrl: "https://github.com/test/api-test",
+      healthUrl: "http://127.0.0.1:3000/health",
+      command: "echo restart-service"
+    };
 
-      const response = await request(app).get("/projects");
+    const res = await request(app).post("/projects").send(payload);
 
-      expect(response.status).toBe(200);
-      expect(Array.isArray(response.body)).toBe(true);
-      expect(response.body).toHaveLength(1);
-      expect(response.body[0].name).toBe("api-teste");
-    },
-    15000
-  );
+    expect([200, 201]).toContain(res.status);
+    expect(res.body).toBeTruthy();
+  });
 
-  it(
-    "should reject invalid project payload",
-    async () => {
-      const response = await request(app)
-        .post("/projects")
-        .send({
-          name: "",
-        });
+  it("deve rejeitar projeto inválido", async () => {
+    const payload = {
+      name: "",
+      healthUrl: ""
+    };
 
-      expect(response.status).toBe(400);
-    },
-    15000
-  );
+    const res = await request(app).post("/projects").send(payload);
+
+    expect(res.status).toBe(400);
+  });
+
+  it("deve listar projeto após criação", async () => {
+    await request(app).post("/projects").send({
+      name: "api-teste-2",
+      repoUrl: "https://github.com/test/api-teste-2",
+      healthUrl: "http://127.0.0.1:3000/health",
+      command: "echo ok"
+    });
+
+    const res = await request(app).get("/projects");
+
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body.length).toBeGreaterThan(0);
+  });
 });
