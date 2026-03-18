@@ -1,16 +1,18 @@
 [
   {
-    "id": "1773796608175",
-    "projectId": "1773796608166",
-    "message": "erro 1",
+    "id": "1773797359269",
+    "projectId": "1773797354567",
+    "message": "API OFFLINE",
     "status": "open",
-    "createdAt": "2026-03-18T01:16:48.175Z"
-  },
-  {
-    "id": "1773796608183",
-    "projectId": "1773796608166",
-    "message": "erro 2",
-    "status": "open",
-    "createdAt": "2026-03-18T01:16:48.183Z"
+    "createdAt": "2026-03-18T01:29:19.269Z",
+    "autoHeal": {
+      "attempted": true,
+      "success": true,
+      "command": "echo fix-applied",
+      "stdout": "fix-applied",
+      "stderr": "",
+      "error": null,
+      "executedAt": "2026-03-18T01:30:34.140Z"
+    }
   }
 ]

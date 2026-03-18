@@ -1,20 +1,11 @@
 [
   {
-    "id": "1773796608157",
-    "name": "api-1",
-    "repoUrl": "https://github.com/test/api-1",
-    "healthUrl": "http://127.0.0.1:3000/health",
-    "command": "echo fix-1",
+    "id": "1773797354567",
+    "name": "api-auto",
+    "repoUrl": "https://github.com/test/api-auto",
+    "healthUrl": "http://127.0.0.1:3999/health",
+    "command": "echo fix-applied",
     "status": "alert",
-    "createdAt": "2026-03-18T01:16:48.157Z"
-  },
-  {
-    "id": "1773796608166",
-    "name": "api-2",
-    "repoUrl": "https://github.com/test/api-2",
-    "healthUrl": "http://127.0.0.1:3000/down",
-    "command": "echo fix-2",
-    "status": "alert",
-    "createdAt": "2026-03-18T01:16:48.166Z"
+    "createdAt": "2026-03-18T01:29:14.567Z"
   }
 ]

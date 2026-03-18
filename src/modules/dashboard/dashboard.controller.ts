@@ -18,6 +18,15 @@ type IncidentItem = {
   status: string;
   createdAt?: string;
   resolvedAt?: string;
+  autoHeal?: {
+    attempted: boolean;
+    success: boolean;
+    command: string;
+    stdout: string;
+    stderr: string;
+    error: string | null;
+    executedAt: string | null;
+  };
 };
 
 export async function getDashboardOverview(_req: Request, res: Response) {
@@ -33,6 +42,9 @@ export async function getDashboardOverview(_req: Request, res: Response) {
       (incident: IncidentItem) => incident.status !== "resolved"
     );
 
+    const latestIncident =
+      projectIncidents.length > 0 ? projectIncidents[projectIncidents.length - 1] : null;
+
     const healthy = openIncidents.length === 0;
 
     return {
@@ -44,13 +56,22 @@ export async function getDashboardOverview(_req: Request, res: Response) {
       status: healthy ? "healthy" : "alert",
       integrity: healthy ? 100 : 0,
       latency: healthy ? 25 : 0,
-      failure: healthy ? "--" : "API OFFLINE",
+      failure: healthy ? "--" : latestIncident?.message || "API OFFLINE",
       severity: healthy ? "INFO" : "CRITICAL",
-      recovery: project.command ? "ATTEMPTED" : "NONE",
+      recovery:
+        latestIncident?.autoHeal?.attempted
+          ? latestIncident.autoHeal.success
+            ? "SUCCESS"
+            : "ATTEMPTED"
+          : project.command
+            ? "AVAILABLE"
+            : "NONE",
       attempts: openIncidents.length,
       statusCode: healthy ? 200 : 0,
       lastCheck: new Date().toISOString(),
-      latestAutoHealCommand: project.command || null,
+      latestAutoHealCommand: latestIncident?.autoHeal?.command || project.command || null,
+      latestAutoHealOutput: latestIncident?.autoHeal?.stdout || "",
+      latestAutoHealError: latestIncident?.autoHeal?.error || null,
     };
   });
 
@@ -81,6 +102,7 @@ export async function getDashboardOverview(_req: Request, res: Response) {
         message: incident.message,
         status: incident.status,
         createdAt: incident.createdAt || new Date().toISOString(),
+        autoHeal: incident.autoHeal || null,
       };
     });
 

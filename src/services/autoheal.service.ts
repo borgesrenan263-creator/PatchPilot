@@ -1,71 +1,200 @@
-import { exec } from "child_process";
-import { logAutoHeal } from "./autoheal-log.service";
-import { buildHealStrategy } from "./heal-strategy.service";
+import { db } from "../lib/db";
+import { runCommand } from "../lib/executor";
+import { createIncidentSchema } from "../modules/incidents/incidents.schema";
 
-type FailureType =
-  | "healthy"
-  | "connection_refused"
-  | "unreachable"
-  | "timeout"
-  | "http_404"
-  | "http_500"
-  | "http_502_503_504"
-  | "http_error"
-  | "unknown";
-
-type AutoHealContext = {
-  project: any;
-  failureType: FailureType;
-  statusCode?: number;
+type ProjectItem = {
+  id: string;
+  name: string;
+  repoUrl?: string;
+  healthUrl: string;
+  command?: string;
+  status?: string;
+  createdAt?: string;
 };
 
-function delay(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+type IncidentItem = {
+  id: string;
+  projectId: string;
+  message: string;
+  status: "open" | "resolved";
+  createdAt?: string;
+  resolvedAt?: string;
+  autoHeal?: {
+    attempted: boolean;
+    success: boolean;
+    command: string;
+    stdout: string;
+    stderr: string;
+    error: string | null;
+    executedAt: string | null;
+  };
+};
+
+const LOOP_MS = 15000;
+const COOLDOWN_MS = 60000;
+
+declare global {
+  var __PATCHPILOT_MONITOR_STARTED__: boolean | undefined;
 }
 
-async function runCommand(projectId: number, command: string): Promise<boolean> {
-  return new Promise((resolve) => {
-    console.log("🧪 Running command:", command);
+const lastExecutionByProject: Record<string, number> = {};
 
-    exec(command, async (err, stdout, stderr) => {
-      const success = !err;
-      const output = err
-        ? (stderr || err.message || "").trim()
-        : (stdout || "").trim();
-
-      if (success) {
-        console.log("✅ Auto-heal output:", output || "ok");
-      } else {
-        console.log("❌ Auto-heal failed:", output || "unknown error");
-      }
-
-      await logAutoHeal({
-        projectId,
-        command,
-        success,
-        output,
-      });
-
-      resolve(success);
+async function checkHealth(url: string): Promise<boolean> {
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
     });
-  });
+
+    return response.ok;
+  } catch {
+    return false;
+  }
 }
 
-export async function tryAutoHeal(ctx: AutoHealContext) {
-  const strategyQueue = buildHealStrategy(ctx);
+function getOpenIncidentForProject(
+  incidents: IncidentItem[],
+  projectId: string
+): IncidentItem | undefined {
+  return incidents.find(
+    (incident) => incident.projectId === projectId && incident.status !== "resolved"
+  );
+}
 
-  console.log("🛠 Attempting auto-heal for:", ctx.project.name);
-  console.log("🧠 Failure type:", ctx.failureType);
+async function processProject(project: ProjectItem) {
+  const isHealthy = await checkHealth(project.healthUrl);
 
-  for (const command of strategyQueue) {
-    const success = await runCommand(ctx.project.id, command);
+  const incidents = (db.getIncidents() || []) as IncidentItem[];
+  const projects = (db.getProjects() || []) as ProjectItem[];
 
-    if (success) {
-      console.log("⏳ Waiting before retry...");
-      await delay(3000); // tempo para subir serviço
-      return true;
+  const openIncident = getOpenIncidentForProject(incidents, project.id);
+
+  if (isHealthy) {
+    if (openIncident) {
+      const updatedIncidents = incidents.map((incident) =>
+        incident.id === openIncident.id
+          ? {
+              ...incident,
+              status: "resolved" as const,
+              resolvedAt: new Date().toISOString(),
+            }
+          : incident
+      );
+
+      db.saveIncidents(updatedIncidents);
+      console.log("✅ Incidente resolvido automaticamente:", project.name);
     }
+
+    const updatedProjects = projects.map((item) =>
+      item.id === project.id ? { ...item, status: "healthy" } : item
+    );
+
+    db.saveProjects(updatedProjects);
+    console.log("✅ OK:", project.name);
+    return;
   }
 
-  return false;
+  const updatedProjects = projects.map((item) =>
+    item.id === project.id ? { ...item, status: "alert" } : item
+  );
+  db.saveProjects(updatedProjects);
+
+  let workingIncidents = incidents;
+  let currentIncident = openIncident;
+
+  if (!currentIncident) {
+    currentIncident = createIncidentSchema({
+      projectId: project.id,
+      message: "API OFFLINE",
+      status: "open",
+      autoHeal: {
+        attempted: false,
+        success: false,
+        command: "",
+        stdout: "",
+        stderr: "",
+        error: null,
+        executedAt: null,
+      },
+    });
+
+    workingIncidents = [...incidents, currentIncident];
+    db.saveIncidents(workingIncidents);
+    console.log("🚨 Incidente criado:", project.name);
+  }
+
+  if (!project.command || !project.command.trim()) {
+    console.log("⏸️ Sem comando de auto-heal:", project.name);
+    return;
+  }
+
+  const now = Date.now();
+  const lastExecution = lastExecutionByProject[project.id] || 0;
+
+  if (now - lastExecution < COOLDOWN_MS) {
+    console.log("⏳ Cooldown ativo:", project.name);
+    return;
+  }
+
+  lastExecutionByProject[project.id] = now;
+
+  console.log("🛠️ Auto-heal automático:", project.name);
+
+  const execution = await runCommand(project.command);
+
+  const freshIncidents = (db.getIncidents() || []) as IncidentItem[];
+
+  const savedIncident = freshIncidents.find((incident) => incident.id === currentIncident?.id);
+
+  if (!savedIncident) {
+    console.log("⚠️ Incidente não encontrado para atualizar:", project.name);
+    return;
+  }
+
+  const updatedIncidents = freshIncidents.map((incident) =>
+    incident.id === savedIncident.id
+      ? {
+          ...incident,
+          autoHeal: {
+            attempted: true,
+            success: execution.success,
+            command: execution.command,
+            stdout: execution.stdout,
+            stderr: execution.stderr,
+            error: execution.error,
+            executedAt: execution.executedAt,
+          },
+        }
+      : incident
+  );
+
+  db.saveIncidents(updatedIncidents);
+
+  if (execution.success) {
+    console.log("✅ Auto-heal executado:", project.name, "-", execution.stdout || "sem stdout");
+  } else {
+    console.log("❌ Auto-heal falhou:", project.name, "-", execution.error || "erro desconhecido");
+  }
+}
+
+export function startAutoHealMonitor() {
+  if (global.__PATCHPILOT_MONITOR_STARTED__) {
+    console.log("ℹ️ Monitor automático já iniciado");
+    return;
+  }
+
+  global.__PATCHPILOT_MONITOR_STARTED__ = true;
+  console.log("🚀 Monitor automático iniciado");
+
+  setInterval(async () => {
+    try {
+      const projects = (db.getProjects() || []) as ProjectItem[];
+
+      for (const project of projects) {
+        await processProject(project);
+      }
+    } catch (error) {
+      console.log("❌ Erro no monitor automático:", error);
+    }
+  }, LOOP_MS);
 }
