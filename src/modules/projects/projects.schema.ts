@@ -1,24 +1,17 @@
-import { z } from "zod";
+export interface Project {
+  id: string;
+  name: string;
+  url: string;
+  status: "ok" | "error";
+  lastCheck: number;
+}
 
-export const createProjectSchema = z.object({
-  name: z.string().min(1, "Nome é obrigatório"),
-  repoUrl: z
-    .string()
-    .trim()
-    .optional()
-    .or(z.literal(""))
-    .transform((value) => {
-      if (!value || value.trim() === "") return null;
-      return value.trim();
-    }),
-  healthcheckUrl: z.string().url("Healthcheck URL inválida"),
-  autoHealCommand: z
-    .string()
-    .trim()
-    .optional()
-    .or(z.literal(""))
-    .transform((value) => {
-      if (!value || value.trim() === "") return null;
-      return value.trim();
-    }),
-});
+export function createProject(data: any): Project {
+  return {
+    id: data.id || Date.now().toString(),
+    name: data.name || "Unnamed",
+    url: data.url || "",
+    status: "ok",
+    lastCheck: Date.now(),
+  };
+}
