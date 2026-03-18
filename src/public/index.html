@@ -2,1069 +2,169 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  />
   <title>PatchPilot</title>
-  <style>
-    :root {
-      --bg: #06101f;
-      --bg-soft: #0b1830;
-      --card: rgba(14, 25, 49, 0.92);
-      --card-2: rgba(20, 33, 63, 0.96);
-      --border: rgba(120, 148, 255, 0.14);
-      --text: #f3f7ff;
-      --muted: #9aa8c7;
-      --primary: #4c7dff;
-      --primary-soft: rgba(76, 125, 255, 0.18);
-      --success: #22c55e;
-      --success-soft: rgba(34, 197, 94, 0.18);
-      --danger: #ef4444;
-      --danger-soft: rgba(239, 68, 68, 0.18);
-      --warn: #f59e0b;
-      --warn-soft: rgba(245, 158, 11, 0.16);
-      --shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
-      --radius: 22px;
-      --radius-sm: 16px;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html, body {
-      margin: 0;
-      padding: 0;
-      background:
-        radial-gradient(circle at top left, rgba(76, 125, 255, 0.18), transparent 34%),
-        radial-gradient(circle at top right, rgba(34, 197, 94, 0.08), transparent 28%),
-        linear-gradient(180deg, #04101f 0%, #07162b 100%);
-      color: var(--text);
-      font-family: Inter, Arial, Helvetica, sans-serif;
-      min-height: 100%;
-    }
-
-    body {
-      padding: 18px 14px 80px;
-    }
-
-    .shell {
-      max-width: 1180px;
-      margin: 0 auto;
-    }
-
-    .hero {
-      background:
-        linear-gradient(135deg, rgba(76, 125, 255, 0.14), rgba(76, 125, 255, 0.04)),
-        rgba(8, 19, 39, 0.78);
-      border: 1px solid var(--border);
-      border-radius: 30px;
-      padding: 24px 18px 20px;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(14px);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero::after {
-      content: "";
-      position: absolute;
-      inset: auto -60px -60px auto;
-      width: 180px;
-      height: 180px;
-      background: radial-gradient(circle, rgba(76,125,255,0.3), transparent 70%);
-      pointer-events: none;
-    }
-
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      color: var(--muted);
-      font-size: 13px;
-      margin-bottom: 14px;
-    }
-
-    .hero h1 {
-      margin: 0;
-      font-size: 54px;
-      line-height: 0.95;
-      letter-spacing: -1.8px;
-    }
-
-    .hero p {
-      margin: 14px 0 0;
-      color: var(--muted);
-      font-size: 18px;
-      line-height: 1.45;
-      max-width: 720px;
-    }
-
-    .hero-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 18px;
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      min-height: 40px;
-      padding: 10px 14px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      color: var(--text);
-      font-size: 14px;
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 16px;
-      margin-top: 16px;
-    }
-
-    .banner {
-      padding: 18px 18px;
-      border-radius: var(--radius);
-      border: 1px solid transparent;
-      box-shadow: var(--shadow);
-      font-size: 18px;
-      line-height: 1.4;
-      font-weight: 700;
-    }
-
-    .banner.ok {
-      background: linear-gradient(135deg, rgba(34,197,94,0.22), rgba(34,197,94,0.12));
-      border-color: rgba(34,197,94,0.25);
-      color: #d9ffe7;
-    }
-
-    .banner.alert {
-      background: linear-gradient(135deg, rgba(239,68,68,0.28), rgba(239,68,68,0.14));
-      border-color: rgba(239,68,68,0.28);
-      color: #ffe1e1;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 14px;
-    }
-
-    .card {
-      background: linear-gradient(180deg, rgba(13,24,47,0.96), rgba(10,20,40,0.95));
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-    }
-
-    .stat {
-      padding: 18px;
-      min-height: 145px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-
-    .stat-label {
-      color: var(--muted);
-      font-size: 15px;
-      line-height: 1.3;
-    }
-
-    .stat-value {
-      font-size: 62px;
-      line-height: 1;
-      letter-spacing: -2px;
-      font-weight: 800;
-    }
-
-    .stat-foot {
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .section {
-      padding: 18px;
-    }
-
-    .section-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-
-    .section-title {
-      margin: 0;
-      font-size: 22px;
-      letter-spacing: -0.4px;
-    }
-
-    .section-sub {
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .project-form {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-    }
-
-    .input {
-      width: 100%;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(4, 11, 24, 0.45);
-      color: var(--text);
-      border-radius: 18px;
-      min-height: 62px;
-      padding: 0 16px;
-      outline: none;
-      font-size: 16px;
-    }
-
-    .input::placeholder {
-      color: #7080a6;
-    }
-
-    .input:focus {
-      border-color: rgba(76, 125, 255, 0.6);
-      box-shadow: 0 0 0 4px rgba(76, 125, 255, 0.12);
-    }
-
-    .btn {
-      border: 0;
-      border-radius: 18px;
-      min-height: 60px;
-      padding: 0 18px;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform 0.15s ease, opacity 0.15s ease;
-    }
-
-    .btn:active {
-      transform: scale(0.99);
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #4b7cff, #2b66f6);
-      color: white;
-      box-shadow: 0 14px 28px rgba(43, 102, 246, 0.3);
-    }
-
-    .btn-secondary {
-      background: rgba(255,255,255,0.06);
-      color: white;
-      border: 1px solid rgba(255,255,255,0.08);
-    }
-
-    .helper {
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.45;
-      margin-top: 6px;
-    }
-
-    .chart-card {
-      padding: 18px;
-    }
-
-    .donut-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 18px;
-      padding: 8px 0 4px;
-    }
-
-    .donut {
-      width: 100%;
-      max-width: 320px;
-      aspect-ratio: 1 / 1;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      position: relative;
-      background: conic-gradient(var(--success) 0deg, var(--success) 0deg, var(--danger) 0deg, var(--danger) 360deg);
-      transition: background 0.3s ease;
-    }
-
-    .donut::after {
-      content: "";
-      width: 58%;
-      height: 58%;
-      border-radius: 50%;
-      background: #07162b;
-      border: 1px solid rgba(255,255,255,0.06);
-      box-shadow: inset 0 0 0 10px rgba(255,255,255,0.015);
-    }
-
-    .donut-center {
-      position: absolute;
-      z-index: 2;
-      text-align: center;
-    }
-
-    .donut-center .n {
-      font-size: 54px;
-      font-weight: 800;
-      line-height: 1;
-    }
-
-    .donut-center .t {
-      color: var(--muted);
-      font-size: 15px;
-      margin-top: 6px;
-    }
-
-    .legend {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 20px;
-      color: var(--muted);
-      font-size: 15px;
-    }
-
-    .legend-item {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .dot {
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-    }
-
-    .dot.success {
-      background: var(--success);
-    }
-
-    .dot.danger {
-      background: var(--danger);
-    }
-
-    .projects-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 14px;
-    }
-
-    .project-card {
-      padding: 16px;
-      border-radius: 24px;
-      border: 1px solid var(--border);
-      background: linear-gradient(180deg, rgba(19,30,56,0.98), rgba(18,25,45,0.98));
-      box-shadow: var(--shadow);
-    }
-
-    .project-card.alert {
-      border-color: rgba(239,68,68,0.45);
-      box-shadow: 0 18px 40px rgba(239,68,68,0.08);
-    }
-
-    .project-card.healthy {
-      border-color: rgba(34,197,94,0.35);
-      box-shadow: 0 18px 40px rgba(34,197,94,0.06);
-    }
-
-    .project-head {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 14px;
-    }
-
-    .project-name {
-      margin: 0;
-      font-size: 26px;
-      line-height: 1.05;
-      letter-spacing: -0.6px;
-      word-break: break-word;
-    }
-
-    .badge {
-      min-width: 96px;
-      min-height: 44px;
-      padding: 0 16px;
-      border-radius: 999px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      white-space: nowrap;
-    }
-
-    .badge.healthy {
-      background: var(--success-soft);
-      color: #caffde;
-      border: 1px solid rgba(34,197,94,0.35);
-    }
-
-    .badge.alert {
-      background: var(--danger-soft);
-      color: #ffd6d6;
-      border: 1px solid rgba(239,68,68,0.35);
-    }
-
-    .badge.info {
-      background: rgba(76,125,255,0.16);
-      color: #d9e4ff;
-      border: 1px solid rgba(76,125,255,0.28);
-    }
-
-    .badge.warn {
-      background: var(--warn-soft);
-      color: #ffe8b5;
-      border: 1px solid rgba(245,158,11,0.3);
-    }
-
-    .metrics {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-      margin: 10px 0 12px;
-    }
-
-    .metric {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.04);
-      border-radius: 18px;
-      padding: 14px;
-    }
-
-    .metric-label {
-      color: var(--muted);
-      font-size: 14px;
-      margin-bottom: 8px;
-    }
-
-    .metric-value {
-      font-size: 19px;
-      line-height: 1.25;
-      word-break: break-word;
-    }
-
-    .project-actions {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    .table-wrap {
-      overflow-x: auto;
-      border-radius: 20px;
-      border: 1px solid rgba(255,255,255,0.05);
-      background: rgba(255,255,255,0.02);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 640px;
-    }
-
-    th, td {
-      text-align: left;
-      padding: 16px 14px;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      vertical-align: middle;
-    }
-
-    th {
-      color: var(--muted);
-      font-size: 14px;
-      font-weight: 700;
-    }
-
-    td {
-      font-size: 16px;
-    }
-
-    tbody tr:last-child td {
-      border-bottom: 0;
-    }
-
-    tbody tr.healthy-row {
-      background: rgba(34,197,94,0.08);
-    }
-
-    tbody tr.alert-row {
-      background: rgba(239,68,68,0.08);
-    }
-
-    .mono {
-      font-family: "Courier New", monospace;
-      font-size: 14px;
-      word-break: break-word;
-    }
-
-    .incidents {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-    }
-
-    .incident {
-      padding: 14px;
-      border-radius: 18px;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.05);
-    }
-
-    .incident-top {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-
-    .incident-title {
-      font-size: 16px;
-      font-weight: 700;
-      word-break: break-word;
-    }
-
-    .incident-meta {
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.45;
-    }
-
-    .empty {
-      color: var(--muted);
-      text-align: center;
-      padding: 24px 14px;
-      border: 1px dashed rgba(255,255,255,0.08);
-      border-radius: 18px;
-    }
-
-    .footer-space {
-      height: 24px;
-    }
-
-    @media (min-width: 860px) {
-      body {
-        padding: 24px 18px 90px;
-      }
-
-      .hero {
-        padding: 30px 26px 26px;
-      }
-
-      .layout {
-        grid-template-columns: 1.15fr 0.85fr;
-        align-items: start;
-      }
-
-      .stats {
-        grid-template-columns: repeat(4, 1fr);
-      }
-
-      .project-form {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .project-form .full {
-        grid-column: 1 / -1;
-      }
-
-      .metrics {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .project-actions {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .projects-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
-  <div class="shell">
-    <section class="hero">
-      <div class="eyebrow">PatchPilot • observabilidade, incidentes e auto-heal</div>
-      <h1>PatchPilot</h1>
-      <p>Monitoramento inteligente de APIs com auto-heal e análise de incidentes em tempo real.</p>
-      <div class="hero-meta">
-        <div class="pill" id="updatedAt">Atualizado: --:--:--</div>
-        <div class="pill" id="heroSummary">Carregando resumo...</div>
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="bg-grid"></div>
+
+  <main class="app-shell">
+    <section class="hero-card">
+      <div class="hero-topline">PatchPilot • observabilidade, incidentes e auto-heal</div>
+      <div class="hero-content">
+        <div>
+          <h1>PatchPilot</h1>
+          <p class="hero-text">
+            Dashboard operacional para monitorar APIs, detectar incidentes,
+            acompanhar integridade e acionar recuperação automática com foco em
+            clareza, velocidade e controle.
+          </p>
+
+          <div class="hero-badges">
+            <span class="badge" id="updatedAt">Atualizado: --:--:--</span>
+            <span class="badge badge-soft" id="attentionBadge">0 serviço(s) exigindo atenção</span>
+          </div>
+        </div>
       </div>
     </section>
 
-    <div class="layout">
-      <div>
-        <div id="alertMount"></div>
+    <section class="alert-banner hidden" id="alertBanner">
+      <span>⚠️ ALERTA ATIVO — Existem incidentes abertos no sistema.</span>
+    </section>
 
-        <section class="stats" id="statsGrid">
-          <article class="card stat">
-            <div class="stat-label">Total de projetos</div>
-            <div class="stat-value" id="totalProjects">0</div>
-            <div class="stat-foot">Serviços monitorados</div>
-          </article>
+    <section class="metrics-grid">
+      <article class="metric-card">
+        <div class="metric-label">Total de projetos</div>
+        <div class="metric-value" id="metricTotalProjects">0</div>
+        <div class="metric-sub">Serviços monitorados</div>
+      </article>
 
-          <article class="card stat">
-            <div class="stat-label">APIs saudáveis</div>
-            <div class="stat-value" id="healthyCount">0</div>
-            <div class="stat-foot">Respondendo corretamente</div>
-          </article>
+      <article class="metric-card">
+        <div class="metric-label">APIs saudáveis</div>
+        <div class="metric-value" id="metricHealthy">0</div>
+        <div class="metric-sub">Respondendo corretamente</div>
+      </article>
 
-          <article class="card stat">
-            <div class="stat-label">APIs em alerta</div>
-            <div class="stat-value" id="alertCount">0</div>
-            <div class="stat-foot">Com falha ou indisponíveis</div>
-          </article>
+      <article class="metric-card metric-card-alert">
+        <div class="metric-label">APIs em alerta</div>
+        <div class="metric-value" id="metricAlert">0</div>
+        <div class="metric-sub">Com falha ou indisponíveis</div>
+      </article>
 
-          <article class="card stat">
-            <div class="stat-label">Auto-heals registrados</div>
-            <div class="stat-value" id="autoHeals">0</div>
-            <div class="stat-foot">Tentativas ou bloqueios</div>
-          </article>
-        </section>
+      <article class="metric-card">
+        <div class="metric-label">Auto-heals registrados</div>
+        <div class="metric-value" id="metricAutoHeals">0</div>
+        <div class="metric-sub">Tentativas ou bloqueios</div>
+      </article>
+    </section>
 
-        <section class="card section">
-          <div class="section-head">
-            <div>
-              <h2 class="section-title">Adicionar projeto</h2>
-              <div class="section-sub">Cadastre um novo serviço para monitoramento e auto-heal.</div>
-            </div>
-          </div>
-
-          <form id="projectForm" class="project-form">
-            <input class="input" id="name" placeholder="Nome do projeto" required />
-            <input class="input" id="repoUrl" placeholder="Repository URL" />
-            <input class="input full" id="healthUrl" placeholder="Healthcheck URL" required />
-            <input class="input full" id="command" placeholder="Auto-heal command (opcional)" />
-            <button class="btn btn-primary full" type="submit">Adicionar projeto</button>
-          </form>
-
-          <div class="helper" id="formMessage"></div>
-        </section>
-
-        <section class="card section">
-          <div class="section-head">
-            <div>
-              <h2 class="section-title">Projetos monitorados</h2>
-              <div class="section-sub">Status operacional detalhado por serviço.</div>
-            </div>
-            <button class="btn btn-secondary" id="refreshBtn" type="button">Atualizar agora</button>
-          </div>
-
-          <div class="projects-grid" id="projectsGrid">
-            <div class="empty">Carregando projetos...</div>
-          </div>
-        </section>
-
-        <section class="card section">
-          <div class="section-head">
-            <div>
-              <h2 class="section-title">Tabela operacional</h2>
-              <div class="section-sub">Visão rápida para acompanhamento diário.</div>
-            </div>
-          </div>
-
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Projeto</th>
-                  <th>Integridade</th>
-                  <th>Status</th>
-                  <th>Latência</th>
-                  <th>Recovery</th>
-                  <th>Tentativas</th>
-                </tr>
-              </thead>
-              <tbody id="tableBody">
-                <tr>
-                  <td colspan="6" class="empty">Carregando tabela...</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <section class="card section">
-          <div class="section-head">
-            <div>
-              <h2 class="section-title">Incidentes recentes</h2>
-              <div class="section-sub">Últimos eventos de auto-heal e bloqueio.</div>
-            </div>
-          </div>
-
-          <div class="incidents" id="incidentsList">
-            <div class="empty">Carregando incidentes...</div>
-          </div>
-        </section>
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Adicionar projeto</h2>
+          <p>Cadastre um novo serviço para monitoramento e auto-heal.</p>
+        </div>
       </div>
 
-      <div>
-        <section class="card chart-card">
-          <div class="section-head">
+      <form id="projectForm" class="project-form">
+        <input type="text" id="name" placeholder="Nome do projeto" required />
+        <input type="text" id="repoUrl" placeholder="Repository URL" />
+        <input type="text" id="healthUrl" placeholder="Healthcheck URL" required />
+        <input type="text" id="command" placeholder="Auto-heal command (opcional)" />
+        <button type="submit">Adicionar projeto</button>
+      </form>
+    </section>
+
+    <section class="main-grid">
+      <section class="panel panel-large">
+        <div class="panel-header panel-header-inline">
+          <div>
+            <h2>Projetos monitorados</h2>
+            <p>Status operacional detalhado por serviço.</p>
+          </div>
+          <button class="secondary-btn" id="refreshBtn">Atualizar agora</button>
+        </div>
+
+        <div id="projectsList" class="projects-list">
+          <div class="empty-state">Carregando projetos...</div>
+        </div>
+      </section>
+
+      <aside class="side-column">
+        <section class="panel">
+          <div class="panel-header">
             <div>
-              <h2 class="section-title">Saudáveis vs Alertas</h2>
-              <div class="section-sub">Distribuição atual dos serviços monitorados.</div>
+              <h2>Incidentes recentes</h2>
+              <p>Últimos eventos de auto-heal e bloqueio.</p>
+            </div>
+          </div>
+          <div id="incidentsList" class="incidents-list">
+            <div class="empty-state">Carregando incidentes...</div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Saudáveis vs Alertas</h2>
+              <p>Distribuição atual dos serviços monitorados.</p>
             </div>
           </div>
 
           <div class="donut-wrap">
-            <div class="donut" id="donutChart">
-              <div class="donut-center">
-                <div class="n" id="donutTotal">0</div>
-                <div class="t">Projetos</div>
+            <div class="donut-chart" id="donutChart">
+              <div class="donut-inner">
+                <strong id="donutTotal">0</strong>
+                <span>Projetos</span>
               </div>
             </div>
 
-            <div class="legend">
-              <div class="legend-item"><span class="dot success"></span> Healthy: <span id="legendHealthy">0</span></div>
-              <div class="legend-item"><span class="dot danger"></span> Alert: <span id="legendAlert">0</span></div>
+            <div class="donut-legend">
+              <div class="legend-item">
+                <span class="legend-dot healthy"></span>
+                <span id="legendHealthy">Healthy: 0</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot alert"></span>
+                <span id="legendAlert">Alert: 0</span>
+              </div>
             </div>
           </div>
         </section>
 
-        <section class="card section">
-          <div class="section-head">
+        <section class="panel">
+          <div class="panel-header">
             <div>
-              <h2 class="section-title">Status geral</h2>
-              <div class="section-sub">Leitura resumida do ambiente.</div>
+              <h2>Status geral</h2>
+              <p>Leitura resumida do ambiente.</p>
             </div>
           </div>
 
-          <div id="summaryPanel" class="projects-grid">
-            <div class="project-card">
-              <div class="metric">
-                <div class="metric-label">Ambiente</div>
-                <div class="metric-value">Carregando...</div>
-              </div>
+          <div class="status-summary" id="statusSummary">
+            <div class="summary-item">
+              <span>Visão executiva</span>
+              <strong>Carregando...</strong>
+            </div>
+            <div class="summary-item">
+              <span>Nível de atenção</span>
+              <strong>--</strong>
+            </div>
+            <div class="summary-item">
+              <span>Estado do auto-heal</span>
+              <strong>--</strong>
             </div>
           </div>
         </section>
-      </div>
-    </div>
+      </aside>
+    </section>
+  </main>
 
-    <div class="footer-space"></div>
-  </div>
-
-  <script>
-    const updatedAt = document.getElementById("updatedAt");
-    const heroSummary = document.getElementById("heroSummary");
-    const alertMount = document.getElementById("alertMount");
-    const totalProjects = document.getElementById("totalProjects");
-    const healthyCount = document.getElementById("healthyCount");
-    const alertCount = document.getElementById("alertCount");
-    const autoHeals = document.getElementById("autoHeals");
-    const donutChart = document.getElementById("donutChart");
-    const donutTotal = document.getElementById("donutTotal");
-    const legendHealthy = document.getElementById("legendHealthy");
-    const legendAlert = document.getElementById("legendAlert");
-    const projectsGrid = document.getElementById("projectsGrid");
-    const tableBody = document.getElementById("tableBody");
-    const incidentsList = document.getElementById("incidentsList");
-    const summaryPanel = document.getElementById("summaryPanel");
-    const projectForm = document.getElementById("projectForm");
-    const formMessage = document.getElementById("formMessage");
-    const refreshBtn = document.getElementById("refreshBtn");
-
-    function escapeHtml(value) {
-      return String(value ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
-
-    function formatTime(date) {
-      return new Date(date).toLocaleTimeString("pt-BR", {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit"
-      });
-    }
-
-    function setDonut(healthy, alert) {
-      const total = healthy + alert;
-      const healthyDeg = total === 0 ? 0 : Math.round((healthy / total) * 360);
-      donutChart.style.background =
-        "conic-gradient(" +
-        "var(--success) 0deg " + healthyDeg + "deg, " +
-        "var(--danger) " + healthyDeg + "deg 360deg)";
-      donutTotal.textContent = String(total);
-      legendHealthy.textContent = String(healthy);
-      legendAlert.textContent = String(alert);
-    }
-
-    function renderBanner(summary) {
-      if (summary.alertCount > 0) {
-        alertMount.innerHTML = '<div class="banner alert">⚠ ALERTA ATIVO — Existem incidentes abertos no sistema.</div>';
-      } else {
-        alertMount.innerHTML = '<div class="banner ok">✓ AMBIENTE ESTÁVEL — Nenhum incidente crítico aberto no momento.</div>';
-      }
-    }
-
-    function renderSummaryPanel(summary) {
-      const statusText = summary.alertCount > 0 ? "Operação com incidentes em aberto" : "Operação estável";
-      const severityText = summary.alertCount > 0 ? "Alta atenção" : "Normal";
-      const healText = summary.autoHeals > 0 ? "Auto-heal ativo em parte do ambiente" : "Sem ações automáticas pendentes";
-
-      summaryPanel.innerHTML = `
-        <div class="project-card">
-          <div class="metric">
-            <div class="metric-label">Visão executiva</div>
-            <div class="metric-value">${escapeHtml(statusText)}</div>
-          </div>
-          <div class="metric">
-            <div class="metric-label">Nível de atenção</div>
-            <div class="metric-value">${escapeHtml(severityText)}</div>
-          </div>
-          <div class="metric">
-            <div class="metric-label">Estado do auto-heal</div>
-            <div class="metric-value">${escapeHtml(healText)}</div>
-          </div>
-        </div>
-      `;
-    }
-
-    function renderProjects(projects) {
-      if (!projects.length) {
-        projectsGrid.innerHTML = '<div class="empty">Nenhum projeto monitorado.</div>';
-        return;
-      }
-
-      projectsGrid.innerHTML = projects.map((p) => {
-        const badgeClass = p.status === "healthy" ? "healthy" : "alert";
-        const severityClass =
-          p.severity === "INFO" ? "info" :
-          p.severity === "CRITICAL" ? "alert" :
-          "warn";
-
-        return `
-          <article class="project-card ${escapeHtml(p.status)}">
-            <div class="project-head">
-              <h3 class="project-name">${escapeHtml(p.name)}</h3>
-              <div class="badge ${badgeClass}">${escapeHtml(p.status)}</div>
-            </div>
-
-            <div class="metrics">
-              <div class="metric">
-                <div class="metric-label">Integridade</div>
-                <div class="metric-value">${escapeHtml(p.integrity)}%</div>
-              </div>
-
-              <div class="metric">
-                <div class="metric-label">Latência</div>
-                <div class="metric-value">${escapeHtml(p.latency)}ms</div>
-              </div>
-
-              <div class="metric">
-                <div class="metric-label">Falha</div>
-                <div class="metric-value">${escapeHtml(p.failure)}</div>
-              </div>
-
-              <div class="metric">
-                <div class="metric-label">Severidade</div>
-                <div class="metric-value"><span class="badge ${severityClass}">${escapeHtml(p.severity)}</span></div>
-              </div>
-
-              <div class="metric">
-                <div class="metric-label">Recuperação</div>
-                <div class="metric-value">${escapeHtml(p.recovery)}</div>
-              </div>
-
-              <div class="metric">
-                <div class="metric-label">Tentativas</div>
-                <div class="metric-value">${escapeHtml(p.attempts)}</div>
-              </div>
-
-              <div class="metric">
-                <div class="metric-label">Status code</div>
-                <div class="metric-value">${escapeHtml(p.statusCode)}</div>
-              </div>
-
-              <div class="metric">
-                <div class="metric-label">Última verificação</div>
-                <div class="metric-value">${escapeHtml(formatTime(p.lastCheckAt))}</div>
-              </div>
-
-              <div class="metric" style="grid-column: 1 / -1;">
-                <div class="metric-label">Auto-heal</div>
-                <div class="metric-value mono">${escapeHtml(p.command || "--")}</div>
-              </div>
-            </div>
-
-            <div class="project-actions">
-              <button class="btn btn-secondary" onclick="unlockProject('${escapeHtml(p.id)}')">Desbloquear</button>
-              <button class="btn btn-primary" onclick="refreshNow()">Atualizar status</button>
-            </div>
-          </article>
-        `;
-      }).join("");
-    }
-
-    function renderTable(projects) {
-      if (!projects.length) {
-        tableBody.innerHTML = '<tr><td colspan="6" class="empty">Nenhum dado operacional disponível.</td></tr>';
-        return;
-      }
-
-      tableBody.innerHTML = projects.map((p) => {
-        const rowClass = p.status === "healthy" ? "healthy-row" : "alert-row";
-        return `
-          <tr class="${rowClass}">
-            <td>${escapeHtml(p.name)}</td>
-            <td>${escapeHtml(p.integrity)}%</td>
-            <td>${escapeHtml(p.status).toUpperCase()}</td>
-            <td>${escapeHtml(p.latency)}ms</td>
-            <td>${escapeHtml(p.recovery)}</td>
-            <td>${escapeHtml(p.attempts)}</td>
-          </tr>
-        `;
-      }).join("");
-    }
-
-    function renderIncidents(incidents) {
-      if (!incidents.length) {
-        incidentsList.innerHTML = '<div class="empty">Nenhum incidente registrado.</div>';
-        return;
-      }
-
-      incidentsList.innerHTML = incidents.slice(0, 10).map((item) => {
-        return `
-          <div class="incident">
-            <div class="incident-top">
-              <div class="incident-title">${escapeHtml(item.projectName || item.projectId || item.type || "incidente")}</div>
-              <div class="badge warn">${escapeHtml(item.attempt || "-")} tentativa</div>
-            </div>
-            <div class="incident-meta">
-              ${escapeHtml(item.result || item.type || "--")}<br />
-              ${escapeHtml(item.createdAt || item.date || "--")}
-            </div>
-          </div>
-        `;
-      }).join("");
-    }
-
-    async function fetchJson(url, fallback) {
-      try {
-        const response = await fetch(url);
-        if (!response.ok) return fallback;
-        return await response.json();
-      } catch {
-        return fallback;
-      }
-    }
-
-    async function loadDashboard() {
-      const statusData = await fetchJson("/projects/status", {
-        summary: {
-          totalProjects: 0,
-          healthyCount: 0,
-          alertCount: 0,
-          autoHeals: 0
-        },
-        projects: []
-      });
-
-      const incidents = await fetchJson("/incidents", []);
-
-      updatedAt.textContent = "Atualizado: " + formatTime(new Date());
-      heroSummary.textContent =
-        statusData.summary.alertCount > 0
-          ? statusData.summary.alertCount + " serviço(s) exigindo atenção"
-          : "Ambiente estável no momento";
-
-      totalProjects.textContent = String(statusData.summary.totalProjects || 0);
-      healthyCount.textContent = String(statusData.summary.healthyCount || 0);
-      alertCount.textContent = String(statusData.summary.alertCount || 0);
-      autoHeals.textContent = String(statusData.summary.autoHeals || 0);
-
-      renderBanner(statusData.summary);
-      renderSummaryPanel(statusData.summary);
-      setDonut(statusData.summary.healthyCount || 0, statusData.summary.alertCount || 0);
-      renderProjects(statusData.projects || []);
-      renderTable(statusData.projects || []);
-      renderIncidents(incidents || []);
-    }
-
-    async function unlockProject(id) {
-      try {
-        await fetch("/projects/" + id + "/unlock", {
-          method: "POST"
-        });
-        alert("Projeto desbloqueado");
-        await loadDashboard();
-      } catch {}
-    }
-
-    async function refreshNow() {
-      await loadDashboard();
-    }
-
-    projectForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-
-      formMessage.textContent = "Salvando projeto...";
-      formMessage.style.color = "var(--muted)";
-
-      const payload = {
-        name: document.getElementById("name").value.trim(),
-        repoUrl: document.getElementById("repoUrl").value.trim(),
-        healthUrl: document.getElementById("healthUrl").value.trim(),
-        command: document.getElementById("command").value.trim()
-      };
-
-      try {
-        const response = await fetch("/projects", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(payload)
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          formMessage.textContent = data?.error || "Erro ao adicionar projeto.";
-          formMessage.style.color = "#ffb4b4";
-          return;
-        }
-
-        projectForm.reset();
-        formMessage.textContent = "Projeto adicionado com sucesso.";
-        formMessage.style.color = "#8af0b3";
-        alert("Projeto criado com sucesso");
-        await loadDashboard();
-      } catch {
-        formMessage.textContent = "Falha de conexão ao adicionar projeto.";
-        formMessage.style.color = "#ffb4b4";
-      }
-    });
-
-    refreshBtn.addEventListener("click", refreshNow);
-
-    loadDashboard();
-    setInterval(loadDashboard, 8000);
-  </script>
+  <script src="/app.js"></script>
 </body>
 </html>
