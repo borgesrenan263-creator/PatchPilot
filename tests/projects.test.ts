@@ -2,10 +2,11 @@ import request from "supertest";
 import app from "../src/app";
 
 describe("Projects routes", () => {
-  it("deve listar projetos", async () => {
+  it("deve listar projetos vazio no início", async () => {
     const res = await request(app).get("/projects");
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
+    expect(res.body).toHaveLength(0);
   });
 
   it("deve criar um projeto válido", async () => {
@@ -20,15 +21,23 @@ describe("Projects routes", () => {
 
     expect([200, 201]).toContain(res.status);
     expect(res.body).toBeTruthy();
+    expect(res.body.name).toBe("api-test");
+    expect(res.body.healthUrl).toBe("http://127.0.0.1:3000/health");
   });
 
-  it("deve rejeitar projeto inválido", async () => {
-    const payload = {
-      name: "",
-      healthUrl: ""
-    };
+  it("deve rejeitar projeto inválido sem nome", async () => {
+    const res = await request(app).post("/projects").send({
+      repoUrl: "https://github.com/test/no-name",
+      healthUrl: "http://127.0.0.1:3000/health"
+    });
 
-    const res = await request(app).post("/projects").send(payload);
+    expect(res.status).toBe(400);
+  });
+
+  it("deve rejeitar projeto inválido sem healthUrl", async () => {
+    const res = await request(app).post("/projects").send({
+      name: "sem-health"
+    });
 
     expect(res.status).toBe(400);
   });
@@ -45,6 +54,7 @@ describe("Projects routes", () => {
 
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
-    expect(res.body.length).toBeGreaterThan(0);
+    expect(res.body.length).toBe(1);
+    expect(res.body[0].name).toBe("api-teste-2");
   });
 });
